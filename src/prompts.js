@@ -21,7 +21,23 @@ Success format:
   "opens_at_utc": "ISO-8601 UTC datetime, e.g. 2025-06-15T14:30:00Z"
 }
 
-To compute opens_at_utc: read the countdown on the modal (in any language, e.g. "Opens in 2h 15m", "Откроется через 2 ч. 15 мин.") and add it to the current UTC time provided in the user message.
+Countdown on the modal — IMPORTANT:
+The modal shows a RELATIVE duration until the object opens, NOT an absolute date or clock time.
+Never read the countdown as "opens at 2:21 AM" or similar. Always parse hours and minutes separately, then add the total duration to the current UTC time from the user message.
+
+Common Albion Online countdown formats (numbers and units may be glued together without spaces):
+- Russian: "Откроется через 13ч 47мин" — 13 hours + 47 minutes (ч/час = hours, мин = minutes)
+- English: "Opens in 2h 15m" or "Opens in 2 h 15 min"
+- German: "Öffnet in 2 Std. 15 Min."
+- Other locales: similar pattern — hours unit first, then minutes unit
+
+Parsing rules:
+1. Identify BOTH parts: hours (ч, h, Std., etc.) AND minutes (мин, m, Min., etc.).
+2. "13ч 47мин" means 13 hours and 47 minutes — NOT 13 minutes. The number before "ч"/"h" is always hours.
+3. If only one unit is shown (e.g. "45мин"), treat the missing unit as 0.
+4. opens_at_utc = current UTC time + hours×3600s + minutes×60s.
+
+Example: current UTC is 2026-06-16T12:34:00Z and countdown is "Откроется через 13ч 47мин" → opens_at_utc = 2026-06-17T02:21:00Z.
 
 Error format (use when ANY required field is missing, unreadable, or ambiguous):
 {

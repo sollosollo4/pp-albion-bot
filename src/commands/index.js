@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder, AttachmentBuilder } from 'discord.js';
 import { t } from '../i18n.js';
 import {
   buildSingleEmbed,
@@ -143,8 +143,14 @@ export const ppCommand = {
       submitted_by_id: interaction.user.id,
     });
 
+    const screenshotName = attachment.name || 'screenshot.png';
+    const screenshotFile = new AttachmentBuilder(imageBuffer, { name: screenshotName });
+    const embed = buildSingleEmbed(record, responseLocale);
+    embed.image = { url: `attachment://${screenshotName}` };
+
     await interaction.editReply({
-      embeds: [buildSingleEmbed(record, responseLocale)],
+      embeds: [embed],
+      files: [screenshotFile],
     });
   },
 };
