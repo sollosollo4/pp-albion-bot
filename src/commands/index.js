@@ -5,6 +5,8 @@ import {
   buildInfoEmbeds,
   buildErrorEmbed,
   buildRateLimitEmbed,
+  buildSuccessEmbed,
+  formatShortId,
 } from '../format.js';
 import { getImageDimensions, validateImageDimensions } from '../image-validation.js';
 import { getObjectType } from '../object-type.js';
@@ -223,4 +225,87 @@ export const infoCommand = {
   },
 };
 
-export const commands = [ppCommand, infoCommand];
+export const clearCommand = {
+  data: new SlashCommandBuilder()
+    .setName('clear')
+    .setDescription('Очистить весь список активных объектов'),
+
+  async execute(interaction, { storage }) {
+    await interaction.deferReply({ ephemeral: true });
+
+    const result = await storage.clearAll();
+    logCommand('info_cleared', {
+      name: 'clear',
+      user: interaction.user.tag,
+      userId: interaction.user.id,
+      count: result.count,
+    });
+
+    await interaction.editReply({
+      embeds: [
+        buildSuccessEmbed(
+          t(interaction.locale, 'listCleared', { count: result.count }),
+          interaction.locale,
+        ),
+      ],
+    });
+  },
+};
+
+export const removeCommand = {
+  data: new SlashCommandBuilder()
+    .setName('remove')
+    .setDescription('Удалить объект из списка по ID')
+    .addStringOption((option) =>
+      option
+        .setName('id')
+        .setDescription('ID объекта (короткий ID из /info или /pp)')
+        .setRequired(true),
+    ),
+
+  async execute(interaction, { storage }) {
+    const locale = interaction.locale;
+    const id = interaction.options.getString('id');
+
+    await interaction.deferReply({ ephemeral: true });
+
+    const result = await storage.removeById(id);
+
+    if (result.reason === 'ambiguous') {
+      const ids = result.matches.map((entry) => `\`${formatShortId(entry.id)}\``).join(', ');
+      await interaction.editReply({
+        embeds: [buildErrorEmbed(t(locale, 'ambiguousEntryId', { ids }), locale)],
+      });
+      return;
+    }
+
+    if (!result.removed) {
+      await interaction.editReply({
+        embeds: [buildErrorEmbed(t(locale, 'entryNotFound', { id }), locale)],
+      });
+      return;
+    }
+
+    logCommand('info_removed', {
+      name: 'remove',
+      user: interaction.user.tag,
+      userId: interaction.user.id,
+      entryId: result.record.id,
+      object: result.record.object_name,
+    });
+
+    await interaction.editReply({
+      embeds: [
+        buildSuccessEmbed(
+          t(locale, 'entryRemoved', {
+            id: formatShortId(result.record.id),
+            object: result.record.object_name,
+          }),
+          locale,
+        ),
+      ],
+    });
+  },
+};
+
+export const commands = [ppCommand, infoCommand, clearCommand, removeCommand];

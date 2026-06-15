@@ -1,19 +1,8 @@
 import { t, pickInfoLocale } from './i18n.js';
+import { rarityEmoji, rarityColor } from './rarity.js';
 
-const RARITY_EMOJI = {
-  common: '⚪',
-  uncommon: '🟢',
-  rare: '🔵',
-  epic: '🟣',
-  legendary: '🟡',
-};
-
-function rarityEmoji(rarity) {
-  const key = rarity.toLowerCase();
-  for (const [name, emoji] of Object.entries(RARITY_EMOJI)) {
-    if (key.includes(name)) return emoji;
-  }
-  return '❔';
+export function formatShortId(id) {
+  return String(id).slice(0, 8);
 }
 
 function formatDiscordTime(iso, locale, { createdAt } = {}) {
@@ -37,17 +26,23 @@ function formatDiscordTime(iso, locale, { createdAt } = {}) {
 
 export function buildSingleEmbed(data, locale) {
   const lang = data.language || locale;
+  const emoji = rarityEmoji(data.rarity);
   return {
-    title: t(lang, 'objectRecognized'),
-    color: 0x5865f2,
+    title: `${emoji} ${t(lang, 'objectRecognized')}`,
+    color: rarityColor(data.rarity),
     fields: [
-      { name: t(lang, 'object'), value: data.object_name, inline: true },
-      { name: t(lang, 'rarity'), value: `${rarityEmoji(data.rarity)} ${data.rarity}`, inline: true },
-      { name: t(lang, 'location'), value: data.location, inline: false },
+      { name: t(lang, 'object'), value: `${emoji} ${data.object_name}`, inline: true },
+      { name: t(lang, 'rarity'), value: `${emoji} ${data.rarity}`, inline: true },
+      { name: t(lang, 'location'), value: `📍 ${data.location}`, inline: false },
       {
         name: t(lang, 'opensAt'),
-        value: formatDiscordTime(data.opens_at_utc, lang, { createdAt: data.created_at }),
+        value: `⏰ ${formatDiscordTime(data.opens_at_utc, lang, { createdAt: data.created_at })}`,
         inline: false,
+      },
+      {
+        name: t(lang, 'entryId'),
+        value: `\`${formatShortId(data.id)}\``,
+        inline: true,
       },
     ],
     timestamp: new Date().toISOString(),
@@ -75,7 +70,11 @@ export function buildInfoEmbeds(entries, fallbackLocale) {
     const emoji = rarityEmoji(entry.rarity);
     const lang = entry.language || locale;
     const time = formatDiscordTime(entry.opens_at_utc, lang, { createdAt: entry.created_at });
-    return `**${index + 1}.** ${emoji} **${entry.object_name}** (${entry.rarity})\n📍 ${entry.location}\n⏰ ${time}`;
+    const shortId = formatShortId(entry.id);
+    return (
+      `**${index + 1}.** \`${shortId}\` ${emoji} **${entry.object_name}** (${entry.rarity})\n` +
+      `📍 ${entry.location}\n⏰ ${time}`
+    );
   });
 
   const chunkSize = 8;
@@ -107,4 +106,13 @@ export function buildErrorEmbed(message, locale = 'en') {
 export function buildRateLimitEmbed(retryAtUnix, locale, { max = 2, windowMinutes = 10 } = {}) {
   const time = `<t:${retryAtUnix}:R> (<t:${retryAtUnix}:t>)`;
   return buildErrorEmbed(t(locale, 'rateLimit', { max, minutes: windowMinutes, time }), locale);
+}
+
+export function buildSuccessEmbed(message, locale = 'en') {
+  return {
+    title: t(locale, 'success'),
+    description: message,
+    color: 0x57f287,
+    timestamp: new Date().toISOString(),
+  };
 }

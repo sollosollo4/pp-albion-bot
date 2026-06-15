@@ -16,7 +16,7 @@ Success format:
   "success": true,
   "language": "ru",
   "object_name": "string — as shown on screenshot",
-  "rarity": "string — as shown on screenshot",
+  "rarity": "string — quality/color rarity as shown on screenshot (e.g. Uncommon/Необычный, Rare/Редкий, Exceptional/Исключительный, Legendary/Уникальный — NOT the numeric tier like VIII)",
   "location": "string — as shown on screenshot",
   "opens_at_utc": "ISO-8601 UTC datetime, e.g. 2025-06-15T14:30:00Z"
 }
@@ -47,6 +47,7 @@ Error format (use when ANY required field is missing, unreadable, or ambiguous):
 }
 
 Required fields: object_name, rarity, location, and a readable countdown on the modal.
+For vortex/wirbel/tornado and core/anomaly objects, rarity is the color quality tier (green → Uncommon, blue → Rare, purple → Exceptional/Epic, gold → Legendary/Unique). Do not use the numeric tier (e.g. VIII) as rarity.
 If the image is not an Albion Online screenshot or lacks the modal/location UI, return an error in the detected UI language (or English if language is unclear).`;
 
 export function buildUserPrompt(currentUtcIso) {

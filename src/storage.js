@@ -63,5 +63,40 @@ export function createStorage(filePath) {
 
       return active;
     },
+
+    async removeById(id) {
+      const normalized = String(id).trim().toLowerCase();
+      if (!normalized) {
+        return { removed: false, reason: 'not_found' };
+      }
+
+      const entries = await readAll();
+      const exact = entries.find((entry) => entry.id.toLowerCase() === normalized);
+      if (exact) {
+        const remaining = entries.filter((entry) => entry.id !== exact.id);
+        await writeAll(remaining);
+        return { removed: true, record: exact };
+      }
+
+      const prefixMatches = entries.filter((entry) => entry.id.toLowerCase().startsWith(normalized));
+      if (prefixMatches.length === 1) {
+        const [record] = prefixMatches;
+        const remaining = entries.filter((entry) => entry.id !== record.id);
+        await writeAll(remaining);
+        return { removed: true, record };
+      }
+
+      if (prefixMatches.length > 1) {
+        return { removed: false, reason: 'ambiguous', matches: prefixMatches };
+      }
+
+      return { removed: false, reason: 'not_found' };
+    },
+
+    async clearAll() {
+      const entries = await readAll();
+      await writeAll([]);
+      return { count: entries.length };
+    },
   };
 }
