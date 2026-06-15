@@ -1,0 +1,30 @@
+services:
+  bot:
+    build: .
+    container_name: vortex-bot
+    restart: unless-stopped
+    environment:
+      # Discord — заполните перед запуском
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
+      DISCORD_GUILD_ID: ${DISCORD_GUILD_ID}
+      ALLOWED_CHANNEL_ID: ${ALLOWED_CHANNEL_ID}
+
+      # OpenAI
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL}
+
+      # Лимиты изображений
+      MAX_IMAGE_SIZE_BYTES: ${MAX_IMAGE_SIZE_BYTES}
+      MAX_IMAGE_WIDTH: ${MAX_IMAGE_WIDTH}
+      MAX_IMAGE_HEIGHT: ${MAX_IMAGE_HEIGHT}
+
+      # Rate limit /pp
+      PP_RATE_LIMIT_MAX: ${PP_RATE_LIMIT_MAX}
+      PP_RATE_LIMIT_WINDOW_MS: ${PP_RATE_LIMIT_WINDOW_MS}
+
+      # Пути внутри контейнера (не менять)
+      DATA_FILE: /app/data/entries.json
+      RATE_LIMIT_FILE: /app/data/rate-limits.json
+    volumes:
+      - ./data:/app/data
