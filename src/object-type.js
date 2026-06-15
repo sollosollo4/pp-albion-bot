@@ -1,9 +1,10 @@
-const OBJECT_TYPES = ['vein', 'vortex', 'core'];
+const OBJECT_TYPES = ['vein', 'vortex', 'core', 'chest'];
 
 const TYPE_KEYWORDS = {
   vein: ['жил', 'vein', 'ader', 'filon', 'żył', 'zył', 'veta', 'veia'],
-  vortex: ['ураган', 'вихрть','vortex', 'wirbel', 'tourbillon', 'tornado'],
-  core: ['ядр', 'аномалия','core', 'kern', 'noyau', 'núcleo', 'nucleo', 'rdzeń', 'rdzen'],
+  vortex: ['ураган', 'вихр', 'vortex', 'wirbel', 'tourbillon', 'tornado'],
+  core: ['ядр', 'аномал', 'core', 'kern', 'noyau', 'núcleo', 'nucleo', 'rdzeń', 'rdzen'],
+  chest: ['сундук', 'застав', 'замок', 'chest', 'outpost', 'castle', 'stronghold', 'truhe', 'coffre', 'skrzyn', 'baule'],
 };
 
 export function getObjectType(objectName) {

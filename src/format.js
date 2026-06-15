@@ -1,5 +1,5 @@
 import { t, pickInfoLocale } from './i18n.js';
-import { rarityEmoji, rarityColor } from './rarity.js';
+import { resolveRarity } from './rarity.js';
 
 export function formatShortId(id) {
   return String(id).slice(0, 8);
@@ -26,10 +26,10 @@ function formatDiscordTime(iso, locale, { createdAt } = {}) {
 
 export function buildSingleEmbed(data, locale) {
   const lang = data.language || locale;
-  const emoji = rarityEmoji(data.rarity);
+  const { emoji, color } = resolveRarity(data);
   return {
     title: `${emoji} ${t(lang, 'objectRecognized')}`,
-    color: rarityColor(data.rarity),
+    color,
     fields: [
       { name: t(lang, 'object'), value: `${emoji} ${data.object_name}`, inline: true },
       { name: t(lang, 'rarity'), value: `${emoji} ${data.rarity}`, inline: true },
@@ -67,7 +67,7 @@ export function buildInfoEmbeds(entries, fallbackLocale) {
   );
 
   const lines = sorted.map((entry, index) => {
-    const emoji = rarityEmoji(entry.rarity);
+    const { emoji } = resolveRarity(entry);
     const lang = entry.language || locale;
     const time = formatDiscordTime(entry.opens_at_utc, lang, { createdAt: entry.created_at });
     const shortId = formatShortId(entry.id);

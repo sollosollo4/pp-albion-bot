@@ -29,6 +29,7 @@ const strings = {
     objectType_vein: 'vein',
     objectType_vortex: 'vortex',
     objectType_core: 'core',
+    objectType_chest: 'chest',
     entryId: 'ID',
     success: 'Done',
     listCleared: 'List cleared. Removed **{count}** object(s).',
