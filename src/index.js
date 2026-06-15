@@ -10,6 +10,7 @@ import { createRateLimiter } from './rate-limit.js';
 import { createVisionService } from './vision.js';
 import { buildErrorEmbed } from './format.js';
 import { t } from './i18n.js';
+import { logCommand, logCommandError } from './logger.js';
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
@@ -49,7 +50,18 @@ client.on(Events.InteractionCreate, async (interaction) => {
   const command = commandMap.get(interaction.commandName);
   if (!command) return;
 
+  const commandMeta = {
+    name: interaction.commandName,
+    user: interaction.user.tag,
+    userId: interaction.user.id,
+    channelId: interaction.channelId,
+    guildId: interaction.guildId,
+  };
+
+  logCommand('received', commandMeta);
+
   if (!isAllowedChannel(interaction.channelId)) {
+    logCommand('rejected', { ...commandMeta, reason: 'channel_restricted' });
     await interaction.reply({
       embeds: [
         buildErrorEmbed(t(interaction.locale, 'channelRestricted'), interaction.locale),
@@ -62,7 +74,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   try {
     await command.execute(interaction, context);
   } catch (error) {
-    console.error(`Command /${interaction.commandName} failed:`, error);
+    logCommandError('failed', error, commandMeta);
 
     const payload = {
       embeds: [buildErrorEmbed(t(interaction.locale, 'internalError'), interaction.locale)],

@@ -7,8 +7,18 @@ import {
   buildRateLimitEmbed,
 } from '../format.js';
 import { getImageDimensions, validateImageDimensions } from '../image-validation.js';
+import { logCommand, logCommandError } from '../logger.js';
 
 const IMAGE_MIME_PREFIX = 'image/';
+
+function ppMeta(interaction, extra = {}) {
+  return {
+    name: 'pp',
+    user: interaction.user.tag,
+    userId: interaction.user.id,
+    ...extra,
+  };
+}
 
 export const ppCommand = {
   data: new SlashCommandBuilder()
@@ -26,6 +36,10 @@ export const ppCommand = {
 
     const limit = await ppRateLimit.consume(interaction.user.id);
     if (!limit.allowed) {
+      logCommand('rate_limited', {
+        ...ppMeta(interaction),
+        retryAt: new Date(limit.retryAt).toISOString(),
+      });
       await interaction.reply({
         embeds: [
           buildRateLimitEmbed(Math.floor(limit.retryAt / 1000), locale, {
@@ -117,7 +131,7 @@ export const ppCommand = {
     try {
       result = await vision.analyzeScreenshot(imageBuffer, attachment.contentType);
     } catch (error) {
-      console.error('OpenAI error:', error);
+      logCommandError('pp_openai_failed', error, ppMeta(interaction));
       await interaction.editReply({
         embeds: [buildErrorEmbed(t(locale, 'openaiFailed'), locale)],
       });
@@ -127,6 +141,7 @@ export const ppCommand = {
     const responseLocale = result.language || locale;
 
     if (!result.success) {
+      logCommand('pp_recognition_failed', ppMeta(interaction, { error: result.error }));
       await interaction.editReply({
         embeds: [buildErrorEmbed(result.error, responseLocale)],
       });
@@ -148,6 +163,13 @@ export const ppCommand = {
     const embed = buildSingleEmbed(record, responseLocale);
     embed.image = { url: `attachment://${screenshotName}` };
 
+    logCommand('pp_recognized', ppMeta(interaction, {
+      object: result.object_name,
+      rarity: result.rarity,
+      location: result.location,
+      entryId: record.id,
+    }));
+
     await interaction.editReply({
       embeds: [embed],
       files: [screenshotFile],
@@ -164,6 +186,12 @@ export const infoCommand = {
     await interaction.deferReply();
 
     const entries = await storage.removeExpired();
+    logCommand('info_listed', {
+      name: 'info',
+      user: interaction.user.tag,
+      userId: interaction.user.id,
+      count: entries.length,
+    });
     const embeds = buildInfoEmbeds(entries, interaction.locale);
 
     await interaction.editReply({ embeds });
