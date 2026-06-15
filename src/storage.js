@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { findConflictingEntry, isEntryActive } from './object-type.js';
 
 async function ensureDataFile(filePath) {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -29,8 +30,15 @@ export function createStorage(filePath) {
   }
 
   return {
-    async addEntry(entry) {
+    async addEntry(entry, now = new Date()) {
       const entries = await readAll();
+      const activeEntries = entries.filter((item) => isEntryActive(item, now));
+      const conflict = findConflictingEntry(activeEntries, entry);
+
+      if (conflict) {
+        return { added: false, conflict };
+      }
+
       const record = {
         id: randomUUID(),
         created_at: new Date().toISOString(),
@@ -38,7 +46,7 @@ export function createStorage(filePath) {
       };
       entries.push(record);
       await writeAll(entries);
-      return record;
+      return { added: true, record };
     },
 
     async getAll() {
@@ -47,11 +55,7 @@ export function createStorage(filePath) {
 
     async removeExpired(now = new Date()) {
       const entries = await readAll();
-      const active = entries.filter((entry) => {
-        if (!entry.opens_at_utc) return true;
-        const opensAt = new Date(entry.opens_at_utc);
-        return Number.isNaN(opensAt.getTime()) || opensAt > now;
-      });
+      const active = entries.filter((entry) => isEntryActive(entry, now));
 
       if (active.length !== entries.length) {
         await writeAll(active);

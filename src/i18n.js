@@ -6,6 +6,7 @@ const strings = {
     rarity: 'Rarity',
     location: 'Location',
     opensAt: 'Opens',
+    opensInRelative: 'Opens {time}',
     noActiveObjects: 'No active objects',
     noActiveObjectsHint: 'Send a screenshot via `/pp` with an image attached.',
     activeObjects: (n) => `Active objects (${n})`,
@@ -23,6 +24,11 @@ const strings = {
     openaiFailed: 'ChatGPT API error. Please try again later.',
     internalError: 'Internal bot error. Please try again later.',
     channelRestricted: 'This command is only available in a specific server channel.',
+    duplicateObjectType:
+      'Location **{location}** already has an active **{type}** object. Only one object of each type is allowed per location.',
+    objectType_vein: 'vein',
+    objectType_vortex: 'vortex',
+    objectType_core: 'core',
   },
   ru: {
     error: 'Ошибка',
@@ -31,6 +37,7 @@ const strings = {
     rarity: 'Редкость',
     location: 'Локация',
     opensAt: 'Откроется',
+    opensInRelative: 'Будет {time}',
     noActiveObjects: 'Нет активных объектов',
     noActiveObjectsHint: 'Отправьте скриншот через `/pp` с прикреплённым изображением.',
     activeObjects: (n) => `Активные объекты (${n})`,
@@ -49,6 +56,11 @@ const strings = {
     openaiFailed: 'Ошибка при обращении к ChatGPT API. Попробуйте позже.',
     internalError: 'Внутренняя ошибка бота. Попробуйте позже.',
     channelRestricted: 'Эта команда доступна только в определённом канале сервера.',
+    duplicateObjectType:
+      'На локации **{location}** уже есть активный объект типа «{type}». На одну локацию можно добавить только один объект каждого типа.',
+    objectType_vein: 'жила',
+    objectType_vortex: 'ураган',
+    objectType_core: 'ядро',
   },
   de: {
     error: 'Fehler',
@@ -57,6 +69,7 @@ const strings = {
     rarity: 'Seltenheit',
     location: 'Standort',
     opensAt: 'Öffnet',
+    opensInRelative: 'Öffnet {time}',
     noActiveObjects: 'Keine aktiven Objekte',
     noActiveObjectsHint: 'Sende einen Screenshot mit `/pp` und angehängtem Bild.',
     activeObjects: (n) => `Aktive Objekte (${n})`,
@@ -75,6 +88,11 @@ const strings = {
     openaiFailed: 'ChatGPT-API-Fehler. Bitte später erneut versuchen.',
     internalError: 'Interner Bot-Fehler. Bitte später erneut versuchen.',
     channelRestricted: 'Dieser Befehl ist nur in einem bestimmten Kanal verfügbar.',
+    duplicateObjectType:
+      'Am Standort **{location}** ist bereits ein aktives **{type}**-Objekt registriert. Pro Standort ist nur ein Objekt jedes Typs erlaubt.',
+    objectType_vein: 'Ader',
+    objectType_vortex: 'Vortex',
+    objectType_core: 'Kern',
   },
   fr: {
     error: 'Erreur',
@@ -83,6 +101,7 @@ const strings = {
     rarity: 'Rareté',
     location: 'Emplacement',
     opensAt: 'Ouvre',
+    opensInRelative: 'Ouvre {time}',
     noActiveObjects: 'Aucun objet actif',
     noActiveObjectsHint: 'Envoyez une capture via `/pp` avec une image jointe.',
     activeObjects: (n) => `Objets actifs (${n})`,
@@ -101,6 +120,11 @@ const strings = {
     openaiFailed: 'Erreur API ChatGPT. Réessayez plus tard.',
     internalError: 'Erreur interne du bot. Réessayez plus tard.',
     channelRestricted: 'Cette commande est disponible uniquement dans un canal spécifique.',
+    duplicateObjectType:
+      'L\'emplacement **{location}** a déjà un objet actif de type **{type}**. Un seul objet de chaque type est autorisé par emplacement.',
+    objectType_vein: 'filon',
+    objectType_vortex: 'vortex',
+    objectType_core: 'noyau',
   },
   pl: {
     error: 'Błąd',
@@ -109,6 +133,7 @@ const strings = {
     rarity: 'Rzadkość',
     location: 'Lokalizacja',
     opensAt: 'Otwiera się',
+    opensInRelative: 'Otworzy się {time}',
     noActiveObjects: 'Brak aktywnych obiektów',
     noActiveObjectsHint: 'Wyślij zrzut ekranu przez `/pp` z załączonym obrazem.',
     activeObjects: (n) => `Aktywne obiekty (${n})`,
@@ -126,6 +151,11 @@ const strings = {
     openaiFailed: 'Błąd API ChatGPT. Spróbuj ponownie później.',
     internalError: 'Wewnętrzny błąd bota. Spróbuj ponownie później.',
     channelRestricted: 'To polecenie jest dostępne tylko na określonym kanale.',
+    duplicateObjectType:
+      'Na lokalizacji **{location}** jest już aktywny obiekt typu **{type}**. Dozwolony jest tylko jeden obiekt każdego typu na lokalizację.',
+    objectType_vein: 'żyła',
+    objectType_vortex: 'vortex',
+    objectType_core: 'rdzeń',
   },
   es: {
     error: 'Error',
@@ -134,6 +164,7 @@ const strings = {
     rarity: 'Rareza',
     location: 'Ubicación',
     opensAt: 'Se abre',
+    opensInRelative: 'Se abre {time}',
     noActiveObjects: 'No hay objetos activos',
     noActiveObjectsHint: 'Envía una captura con `/pp` y una imagen adjunta.',
     activeObjects: (n) => `Objetos activos (${n})`,
@@ -151,6 +182,11 @@ const strings = {
     openaiFailed: 'Error de la API de ChatGPT. Inténtalo más tarde.',
     internalError: 'Error interno del bot. Inténtalo más tarde.',
     channelRestricted: 'Este comando solo está disponible en un canal específico.',
+    duplicateObjectType:
+      'En la ubicación **{location}** ya hay un objeto activo de tipo **{type}**. Solo se permite un objeto de cada tipo por ubicación.',
+    objectType_vein: 'veta',
+    objectType_vortex: 'vortex',
+    objectType_core: 'núcleo',
   },
   pt: {
     error: 'Erro',
@@ -159,6 +195,7 @@ const strings = {
     rarity: 'Raridade',
     location: 'Localização',
     opensAt: 'Abre',
+    opensInRelative: 'Abre {time}',
     noActiveObjects: 'Nenhum objeto ativo',
     noActiveObjectsHint: 'Envie uma captura via `/pp` com uma imagem anexada.',
     activeObjects: (n) => `Objetos ativos (${n})`,
@@ -176,6 +213,11 @@ const strings = {
     openaiFailed: 'Erro na API do ChatGPT. Tente novamente mais tarde.',
     internalError: 'Erro interno do bot. Tente novamente mais tarde.',
     channelRestricted: 'Este comando está disponível apenas em um canal específico.',
+    duplicateObjectType:
+      'Na localização **{location}** já existe um objeto ativo do tipo **{type}**. Apenas um objeto de cada tipo é permitido por localização.',
+    objectType_vein: 'veia',
+    objectType_vortex: 'vortex',
+    objectType_core: 'núcleo',
   },
 };
 

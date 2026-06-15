@@ -16,11 +16,23 @@ function rarityEmoji(rarity) {
   return '❔';
 }
 
-function formatDiscordTime(iso) {
+function formatDiscordTime(iso, locale, { createdAt } = {}) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  const unix = Math.floor(date.getTime() / 1000);
-  return `<t:${unix}:F> (<t:${unix}:R>)`;
+
+  const opensUnix = Math.floor(date.getTime() / 1000);
+  const relative = `<t:${opensUnix}:R>`;
+  let result = `<t:${opensUnix}:F> (${t(locale, 'opensInRelative', { time: relative })})`;
+
+  if (createdAt) {
+    const createdDate = new Date(createdAt);
+    if (!Number.isNaN(createdDate.getTime())) {
+      const createdUnix = Math.floor(createdDate.getTime() / 1000);
+      result += ` (<t:${createdUnix}:R>)`;
+    }
+  }
+
+  return result;
 }
 
 export function buildSingleEmbed(data, locale) {
@@ -32,7 +44,11 @@ export function buildSingleEmbed(data, locale) {
       { name: t(lang, 'object'), value: data.object_name, inline: true },
       { name: t(lang, 'rarity'), value: `${rarityEmoji(data.rarity)} ${data.rarity}`, inline: true },
       { name: t(lang, 'location'), value: data.location, inline: false },
-      { name: t(lang, 'opensAt'), value: formatDiscordTime(data.opens_at_utc), inline: false },
+      {
+        name: t(lang, 'opensAt'),
+        value: formatDiscordTime(data.opens_at_utc, lang, { createdAt: data.created_at }),
+        inline: false,
+      },
     ],
     timestamp: new Date().toISOString(),
   };
@@ -57,7 +73,8 @@ export function buildInfoEmbeds(entries, fallbackLocale) {
 
   const lines = sorted.map((entry, index) => {
     const emoji = rarityEmoji(entry.rarity);
-    const time = formatDiscordTime(entry.opens_at_utc);
+    const lang = entry.language || locale;
+    const time = formatDiscordTime(entry.opens_at_utc, lang, { createdAt: entry.created_at });
     return `**${index + 1}.** ${emoji} **${entry.object_name}** (${entry.rarity})\n📍 ${entry.location}\n⏰ ${time}`;
   });
 

@@ -7,6 +7,7 @@ import {
   buildRateLimitEmbed,
 } from '../format.js';
 import { getImageDimensions, validateImageDimensions } from '../image-validation.js';
+import { getObjectType } from '../object-type.js';
 import { logCommand, logCommandError } from '../logger.js';
 
 const IMAGE_MIME_PREFIX = 'image/';
@@ -148,7 +149,7 @@ export const ppCommand = {
       return;
     }
 
-    const record = await storage.addEntry({
+    const saveResult = await storage.addEntry({
       object_name: result.object_name,
       rarity: result.rarity,
       location: result.location,
@@ -157,6 +158,30 @@ export const ppCommand = {
       submitted_by: interaction.user.tag,
       submitted_by_id: interaction.user.id,
     });
+
+    if (!saveResult.added) {
+      const objectType = getObjectType(result.object_name);
+      logCommand('pp_duplicate_type', ppMeta(interaction, {
+        object: result.object_name,
+        location: result.location,
+        type: objectType,
+        existingId: saveResult.conflict.id,
+      }));
+      await interaction.editReply({
+        embeds: [
+          buildErrorEmbed(
+            t(responseLocale, 'duplicateObjectType', {
+              location: result.location,
+              type: t(responseLocale, `objectType_${objectType}`),
+            }),
+            responseLocale,
+          ),
+        ],
+      });
+      return;
+    }
+
+    const record = saveResult.record;
 
     const screenshotName = attachment.name || 'screenshot.png';
     const screenshotFile = new AttachmentBuilder(imageBuffer, { name: screenshotName });
